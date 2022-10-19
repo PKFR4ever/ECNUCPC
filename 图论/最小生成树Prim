@@ -1,0 +1,65 @@
+#include <bits/stdc++.h>
+using namespace std;
+int n,m;
+struct Edge{
+	int to,w,next;
+}edge[1000010];
+int cnt = 0;
+int head[100111];
+void add(int u,int v,int w){ 
+	edge[++cnt].to = v;
+	edge[cnt].w = w;
+	edge[cnt].next = head[u];
+	head[u] = cnt;
+}
+struct node{
+	int idx, dis;
+};
+struct cmp{
+	bool operator()(node x,node y){
+		if(x.dis == y.dis) return x.idx > y.idx;
+		return x.dis > y.dis;
+	}
+};
+int used[100111] = {0};
+int mincost[100111] = {0};
+priority_queue<node,vector<node>, cmp> q;
+int prim(){
+	for(int i=1;i<=n;i++) mincost[i] = 1e9;
+	used[1] = 1;
+	mincost[1] = 0; 
+	for(int i=head[1];i!=-1;i=edge[i].next){
+		node now{edge[i].to, edge[i].w};
+		q.push(now);
+	}
+	int res = 0;
+	while(q.size()){
+		node cur = q.top();
+		q.pop();
+		if(used[cur.idx]) continue;
+		res += cur.dis;
+		used[cur.idx] = 1;
+		for(int i=head[cur.idx];i!=-1;i=edge[i].next){
+			if(used[edge[i].to]) continue;
+			if(mincost[edge[i].to] > edge[i].w){
+				mincost[edge[i].to] = edge[i].w;
+				node now{edge[i].to,edge[i].w};
+				q.push(now);
+			}
+		}
+	}
+	return res;
+}
+int main(void)
+{
+	cin >> n >> m;
+	memset(head,-1,sizeof(head));
+	for(int i=1;i<=m;i++){
+		int u,v,w;
+		cin >> u >> v >> w;
+		add(u,v,w);
+		add(v,u,w);
+	}
+	cout << prim();
+	return 0;
+}
